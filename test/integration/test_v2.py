@@ -1300,7 +1300,7 @@ class TestCodeEngineV2:
             project_id=pytest.e2e_test_project_id,
             code_reference='data:text/plain;base64,YXN5bmMgZnVuY3Rpb24gbWFpbihwYXJhbXMpIHsKICByZXR1cm4gewogICAgICBzdGF0dXNDb2RlOiAyMDAsCiAgICAgIGhlYWRlcnM6IHsgJ0NvbnRlbnQtVHlwZSc6ICdhcHBsaWNhdGlvbi9qc29uJyB9LAogICAgICBib2R5OiBwYXJhbXMgfTsKfQptb2R1bGUuZXhwb3J0cy5tYWluID0gbWFpbjs=',
             name='my-function',
-            runtime='nodejs-20',
+            runtime='nodejs-24',
         )
 
         assert response.get_status_code() == 201

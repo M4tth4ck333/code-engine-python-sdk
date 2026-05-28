@@ -22,7 +22,7 @@ import os
 import pytest
 from ibm_code_engine_sdk.code_engine_v2 import *
 
-version = '2026-03-27'
+version = '2026-05-14'
 
 #
 # This file provides an example of how to use the Code Engine service.
@@ -712,7 +712,7 @@ class TestCodeEngineV2Examples:
                 project_id='15314cc3-85b4-4338-903f-c28cdee6d005',
                 code_reference='data:text/plain;base64,<base64encoded-source-code>',
                 name='my-function',
-                runtime='nodejs-20',
+                runtime='nodejs-24',
             )
             function = response.get_result()
 

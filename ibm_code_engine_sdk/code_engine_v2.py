@@ -56,7 +56,7 @@ class CodeEngineV2(BaseService):
 
         :param str version: (optional) The API version, in format `YYYY-MM-DD`. For
                the API behavior documented here, specify any date between `2021-03-31` and
-               `2026-03-27`.
+               `2026-05-14`.
         """
         authenticator = get_authenticator_from_environment(service_name)
         service = cls(
@@ -80,7 +80,7 @@ class CodeEngineV2(BaseService):
 
         :param str version: (optional) The API version, in format `YYYY-MM-DD`. For
                the API behavior documented here, specify any date between `2021-03-31` and
-               `2026-03-27`.
+               `2026-05-14`.
         """
         BaseService.__init__(self, service_url=self.DEFAULT_SERVICE_URL, authenticator=authenticator)
         self.version = version
@@ -9045,8 +9045,8 @@ class CbrStatus:
     """
     Status of the Context-based-restriction configuration applicable for this project.
 
-    :param EnforcementStatus data_plane: Describes the model of the enforcement
-          status of a CBR status.
+    :param EnforcementStatus data_plane: Describes the model of the CBR enforcement
+          status.
     """
 
     def __init__(
@@ -9056,8 +9056,8 @@ class CbrStatus:
         """
         Initialize a CbrStatus object.
 
-        :param EnforcementStatus data_plane: Describes the model of the enforcement
-               status of a CBR status.
+        :param EnforcementStatus data_plane: Describes the model of the CBR
+               enforcement status.
         """
         self.data_plane = data_plane
 
@@ -10130,10 +10130,14 @@ class EndpointGatewayDetails:
 
 class EnforcementStatus:
     """
-    Describes the model of the enforcement status of a CBR status.
+    Describes the model of the CBR enforcement status.
 
     :param str enforcement: Detailed information on the condition of the CBR
           enforcement.
+    :param str inbound_private: Indicates whether the private dataplane access to
+          the project is blocked, partially_restricted, or allowed.
+    :param str inbound_public: Indicates whether the public dataplane access to the
+          project is blocked or allowed.
     :param str last_synced_at: (optional) Date time information specifying when the
           last synchronization happened.
     """
@@ -10141,6 +10145,8 @@ class EnforcementStatus:
     def __init__(
         self,
         enforcement: str,
+        inbound_private: str,
+        inbound_public: str,
         *,
         last_synced_at: Optional[str] = None,
     ) -> None:
@@ -10149,10 +10155,16 @@ class EnforcementStatus:
 
         :param str enforcement: Detailed information on the condition of the CBR
                enforcement.
+        :param str inbound_private: Indicates whether the private dataplane access
+               to the project is blocked, partially_restricted, or allowed.
+        :param str inbound_public: Indicates whether the public dataplane access to
+               the project is blocked or allowed.
         :param str last_synced_at: (optional) Date time information specifying when
                the last synchronization happened.
         """
         self.enforcement = enforcement
+        self.inbound_private = inbound_private
+        self.inbound_public = inbound_public
         self.last_synced_at = last_synced_at
 
     @classmethod
@@ -10163,6 +10175,14 @@ class EnforcementStatus:
             args['enforcement'] = enforcement
         else:
             raise ValueError('Required property \'enforcement\' not present in EnforcementStatus JSON')
+        if (inbound_private := _dict.get('inbound_private')) is not None:
+            args['inbound_private'] = inbound_private
+        else:
+            raise ValueError('Required property \'inbound_private\' not present in EnforcementStatus JSON')
+        if (inbound_public := _dict.get('inbound_public')) is not None:
+            args['inbound_public'] = inbound_public
+        else:
+            raise ValueError('Required property \'inbound_public\' not present in EnforcementStatus JSON')
         if (last_synced_at := _dict.get('last_synced_at')) is not None:
             args['last_synced_at'] = last_synced_at
         return cls(**args)
@@ -10177,6 +10197,10 @@ class EnforcementStatus:
         _dict = {}
         if hasattr(self, 'enforcement') and self.enforcement is not None:
             _dict['enforcement'] = self.enforcement
+        if hasattr(self, 'inbound_private') and self.inbound_private is not None:
+            _dict['inbound_private'] = self.inbound_private
+        if hasattr(self, 'inbound_public') and self.inbound_public is not None:
+            _dict['inbound_public'] = self.inbound_public
         if hasattr(self, 'last_synced_at') and self.last_synced_at is not None:
             _dict['last_synced_at'] = self.last_synced_at
         return _dict
@@ -10207,6 +10231,27 @@ class EnforcementStatus:
         APPLIED = 'applied'
         OUT_OF_SYNC = 'out_of_sync'
         NONE = 'none'
+        UNKNOWN = 'unknown'
+
+    class InboundPrivateEnum(str, Enum):
+        """
+        Indicates whether the private dataplane access to the project is blocked,
+        partially_restricted, or allowed.
+        """
+
+        BLOCKED = 'blocked'
+        PARTIALLY_RESTRICTED = 'partially_restricted'
+        ALLOWED = 'allowed'
+        UNKNOWN = 'unknown'
+
+    class InboundPublicEnum(str, Enum):
+        """
+        Indicates whether the public dataplane access to the project is blocked or
+        allowed.
+        """
+
+        BLOCKED = 'blocked'
+        ALLOWED = 'allowed'
         UNKNOWN = 'unknown'
 
 
@@ -13350,6 +13395,8 @@ class PersistentDataStore:
           of 1048576 characters.
     :param str entity_tag: The version of the persistent data store, which is used
           to achieve optimistic locking.
+    :param str href: (optional) When you provision a new persistent data store, a
+          URL is created identifying the location of the instance.
     :param str id: (optional) The identifier of the resource.
     :param str name: The name of the persistent data store.
     :param str project_id: (optional) The ID of the project in which the resource is
@@ -13369,6 +13416,7 @@ class PersistentDataStore:
         storage_type: str,
         *,
         created_at: Optional[str] = None,
+        href: Optional[str] = None,
         id: Optional[str] = None,
         project_id: Optional[str] = None,
         region: Optional[str] = None,
@@ -13387,10 +13435,13 @@ class PersistentDataStore:
         :param str name: The name of the persistent data store.
         :param str storage_type: Specify the storage type of the persistent data
                store.
+        :param str href: (optional) When you provision a new persistent data store,
+               a URL is created identifying the location of the instance.
         """
         self.created_at = created_at
         self.data = data
         self.entity_tag = entity_tag
+        self.href = href
         self.id = id
         self.name = name
         self.project_id = project_id
@@ -13412,6 +13463,8 @@ class PersistentDataStore:
             args['entity_tag'] = entity_tag
         else:
             raise ValueError('Required property \'entity_tag\' not present in PersistentDataStore JSON')
+        if (href := _dict.get('href')) is not None:
+            args['href'] = href
         if (id := _dict.get('id')) is not None:
             args['id'] = id
         if (name := _dict.get('name')) is not None:
@@ -13447,6 +13500,8 @@ class PersistentDataStore:
                 _dict['data'] = self.data.to_dict()
         if hasattr(self, 'entity_tag') and self.entity_tag is not None:
             _dict['entity_tag'] = self.entity_tag
+        if hasattr(self, 'href') and self.href is not None:
+            _dict['href'] = self.href
         if hasattr(self, 'id') and getattr(self, 'id') is not None:
             _dict['id'] = getattr(self, 'id')
         if hasattr(self, 'name') and self.name is not None:
